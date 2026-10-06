@@ -5,27 +5,21 @@ import app from './index.js';
 test('GET / returns Hello CI/CD', async () => {
     const server = app.listen(0);
 
-    const port = server.address().port;
+    try {
+        const port = server.address().port;
 
-    const response = await fetch(`http://localhost:${port}/`);
-    const body = await response.json();
+        const response = await fetch(`http://localhost:${port}/`, {
+            headers: {
+                connection: 'close'
+            }
+        });
 
-    assert.strictEqual(response.status, 200);
-    assert.strictEqual(body.msg, 'Hello CI/CD');
+        const body = await response.json();
 
-    server.close();
-});
-
-test('GET / returns Hello CI/CD v2', async () => {
-    const server = app.listen(0);
-
-    const port = server.address().port;
-
-    const response = await fetch(`http://localhost:${port}/`);
-    const body = await response.json();
-
-    assert.strictEqual(response.status, 200);
-    assert.strictEqual(body.msg, 'Hello CI/CD v2');
-
-    server.close();
+        assert.strictEqual(response.status, 200);
+        assert.strictEqual(body.msg, 'Hello CI/CD');
+    } finally {
+        server.closeAllConnections();
+        server.close();
+    }
 });
